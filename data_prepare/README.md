@@ -65,10 +65,11 @@ The first conversion script transforms the dataset into a standardized JSON form
 ```bash
 cd data_prepare
 
-python convert_to_json.py \
-    --input-dir ../data/olmOCR-mix-1025-raw \
-    --output-dir ../data/olmOCR-mix-1025-json
+python convert_to_json.py
+
 ```
+
+Note: You must update the file paths inside the Python script before running it.
 
 **What this does:**
 - Parses the original olmOCR format
@@ -91,9 +92,8 @@ data/olmOCR-mix-1025-json/
 The second conversion script transforms the data into the format required for VILA training, with images converted to PNG:
 
 ```bash
-python convert_to_llava.py \
-    --input-dir ../data/olmOCR-mix-1025-json \
-    --output-dir ../data/olmOCR-mix-1025-llava
+python convert_to_llava.py 
+
 ```
 
 **What this does:**
