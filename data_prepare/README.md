@@ -153,14 +153,10 @@ huggingface-cli download allenai/olmOCR-mix-1025 \
 
 # Step 3: Convert olmOCR to JSON
 cd data_prepare
-python convert_to_json.py \
-    --input-dir ../data/olmOCR-mix-1025-raw \
-    --output-dir ../data/olmOCR-mix-1025-json
+python convert_to_json.py 
 
 # Step 4: Convert to LLaVA format with PNG images
-python convert_to_llava.py \
-    --input-dir ../data/olmOCR-mix-1025-json \
-    --output-dir ../data/olmOCR-mix-1025-llava
+python convert_to_llava.py 
 ```
 
 ## 📁 Final Directory Structure
@@ -196,46 +192,9 @@ data_prepare/
 └── README.md               # This file
 ```
 
-### Script Options
 
-#### convert_to_json.py
-
-```bash
-python convert_to_json.py \
-    --input-dir <path_to_raw_data> \
-    --output-dir <path_to_json_output> \
-    [--num-workers 4]                    # Parallel processing
 ```
 
-#### convert_to_llava.py
-
-```bash
-python convert_to_llava.py \
-    --input-dir <path_to_json_data> \
-    --output-dir <path_to_llava_output> \
-    [--image-format png]                 # Output image format (default: png)
-    [--num-workers 4]                    # Parallel processing
-    [--max-size 2048]                    # Max image dimension
-```
-
-## ⚠️ Important Notes
-
-1. **Disk Space**: Ensure you have sufficient disk space:
-   - LLaVA-CC3M: ~100GB
-   - olmOCR-mix (raw): ~50GB
-   - olmOCR-mix (converted): ~80GB (PNG format)
-   - Total: ~230GB recommended
-
-2. **Image Format**: The conversion process ensures all images are in PNG format for consistency during training.
-
-3. **Data Validation**: Both scripts include validation checks. If you encounter errors, check:
-   - Image file integrity
-   - JSON format validity
-   - Sufficient disk space
-
-4. **Processing Time**: 
-   - `convert_to_json.py`: ~10-30 minutes
-   - `convert_to_llava.py`: ~30-60 minutes (depends on image count and size)
 
 ## 🐛 Troubleshooting
 
@@ -244,34 +203,6 @@ python convert_to_llava.py \
 ```bash
 # Resume download by re-running the command
 huggingface-cli download <dataset> --resume-download
-```
-
-### Issue: Conversion script fails
-
-```bash
-# Check Python dependencies
-pip install pillow tqdm pandas
-
-# Run with verbose logging
-python convert_to_json.py --input-dir ... --output-dir ... --verbose
-```
-
-### Issue: Out of memory during conversion
-
-```bash
-# Reduce number of workers
-python convert_to_llava.py \
-    --input-dir ... \
-    --output-dir ... \
-    --num-workers 1
-```
-
-### Issue: Corrupted images
-
-```bash
-# The scripts will skip corrupted images and log them
-# Check the log file for details:
-cat conversion_errors.log
 ```
 
 ## 📚 Next Steps
