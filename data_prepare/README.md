@@ -1,184 +1,291 @@
-# Data Preparation for Training VILA
+# Data Preparation Guide
 
-To train VILA, we used the following datasets:
+This guide explains how to prepare the training datasets for Easy Deep-OCR. The model requires two datasets across two training stages.
 
-| Stage | Datasets |
-| ----------------------- | -------------------------------------------------------------------------------- |
-| 1. Initialize projector | CC3M |
-| 2. Pre-training | MMC4-core, COYO-700M, ShreGPT4V_pretrain |
-| 3. SFT | LLaVA-Next mixture, VFLAN, WIT, GSM8K-ScRel-SFT, Sherlock, ScienceQA, Shot2story, Video_ChatGPT, Youcook2, Vatex, ShareGPT_Video |
+## 📋 Overview
 
-### LLaVa-CC3M-Pretrain
+| Stage | Dataset | Size | Purpose | Format |
+|-------|---------|------|---------|--------|
+| Stage 1: Alignment | LLaVA-CC3M-Pretrain-595K | 595K | Initialize projector | Direct download |
+| Stage 2: Pretraining | olmOCR-mix-1025 | 260k | Train full model | Requires conversion |
 
-We use [LLaVA-CC3M-Pretrain-595K](https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K/blob/main/chat.json) to train the visual language projector
-
-### MMC4-Core Dataset
-
-Due to the limit of compute, we pre-train VILA on the smaller core set of MMC4 instead of the full set.
-
-1. Firstly, download the annotations of the MMC4-core dataset here: https://github.com/allenai/mmc4. We used the non-fewer-face split, and you may need to request the access [here](https://forms.gle/VYtcNY8aYaUANK9f8).
-
-1. Now modify the input and output path in `mmc4_downloader.py` and run the following script to scrawl the MMC4 images:
+## 🔧 Prerequisites
 
 ```bash
-cd mmc4
-python mmc4_downloader.py
+# Install Hugging Face CLI
+pip install huggingface-hub
+
+# Login to Hugging Face (if needed)
+huggingface-cli login
 ```
 
-Note that due to the expiration of image urls, you may end up getting a subset of the entire corpus.
+## 📦 Stage 1: LLaVA-CC3M-Pretrain-595K
 
-The scrawling may take a long time. Optionally, you can also shard the workload over multiple jobs/machines concurrently to speed up the process:
+### Download
+
+This dataset can be used directly without conversion:
 
 ```bash
-# provide the start and end index of the jsonl shard. There are 23098 - 14 shards totally
-# python mmc4_downloader.py <start_idx> <end_idx>
-python mmc4_downloader.py 0 1000  # worker 1
-python mmc4_downloader.py 1000 2000  # worker 2
+# Download the dataset
+huggingface-cli download liuhaotian/LLaVA-CC3M-Pretrain-595K \
+    --repo-type dataset \
+    --local-dir ./data/LLaVA-CC3M-Pretrain-595K
 ```
 
-3. Filter out invalid samples in MMC4:
+### Dataset Structure
+
+```
+data/LLaVA-CC3M-Pretrain-595K/
+├── images/
+│   ├── 000000000001.jpg
+│   ├── 000000000002.jpg
+│   └── ...
+└── chat.json
+```
+
+The dataset is ready to use for Stage 1 alignment training.
+
+## 📦 Stage 2: olmOCR-mix-1025
+
+This dataset requires format conversion to be compatible with the VILA training pipeline.
+
+### Step 1: Download Raw Data
 
 ```bash
-python mmc4_filter_and_counter.py
+# Download the dataset
+huggingface-cli download allenai/olmOCR-mix-1025 \
+    --repo-type dataset \
+    --local-dir ./data/olmOCR-mix-1025-raw
 ```
 
-4. Merge images and text into a unified pickle file for each shard:
+### Step 2: Convert to Intermediate JSON Format
+
+The first conversion script transforms the dataset into a standardized JSON format:
 
 ```bash
-python mmc4_merger.py
+cd data_prepare
+
+python convert_to_json.py \
+    --input-dir ../data/olmOCR-mix-1025-raw \
+    --output-dir ../data/olmOCR-mix-1025-json
 ```
 
-### COYO-700M Dataset
+**What this does:**
+- Parses the original olmOCR format
+- Extracts image paths and annotations
+- Creates a unified JSON structure
+- Validates data integrity
 
-1. Download the metadata of COYO-700M:
+**Output structure:**
+```
+data/olmOCR-mix-1025-json/
+├── annotations.json
+└── images/
+    ├── doc_0001.pdf (or .png/.jpg)
+    ├── doc_0002.pdf
+    └── ...
+```
+
+### Step 3: Convert to LLaVA Training Format
+
+The second conversion script transforms the data into the format required for VILA training, with images converted to PNG:
 
 ```bash
-huggingface-cli download kakaobrain/coyo-700m --repo-type dataset --local-dir coyo-700m --local-dir-use-symlinks False
+python convert_to_llava.py \
+    --input-dir ../data/olmOCR-mix-1025-json \
+    --output-dir ../data/olmOCR-mix-1025-llava
 ```
 
-2. Scrawl the COYO images. Note that here we only keep a 20% subset in each shard with the highest CLIP similarity, to balance compute budget and data quality.
+**What this does:**
+- Converts all images to PNG format
+- Creates conversation-style annotations
+- Formats data for multi-turn dialogue training
+- Generates the final `chat.json` file
 
-There are totally 128 shards of annotations. Now download each one with the script:
+**Output structure:**
+```
+data/olmOCR-mix-1025-llava/
+├── images/
+│   ├── doc_0001.png
+│   ├── doc_0002.png
+│   └── ...
+└── chat.json
+```
+
+### Final Dataset Format
+
+The `chat.json` file follows this structure:
+
+```json
+[
+    {
+        "id": "doc_0001",
+        "image": "images/doc_0001.png",
+        "conversations": [
+            {
+                "from": "human",
+                "value": "<image>\nFree OCR."
+            },
+            {
+                "from": "gpt",
+                "value": "Extracted text content..."
+            }
+        ]
+    },
+    ...
+]
+```
+
+## 🚀 Complete Pipeline
+
+Run all steps in sequence:
 
 ```bash
-cd coyo
-for SHARD in {0..127}; do
-    python coyo_downloader.py $SHARD
-done
+# Step 1: Download LLaVA-CC3M
+huggingface-cli download liuhaotian/LLaVA-CC3M-Pretrain-595K \
+    --repo-type dataset \
+    --local-dir ./data/LLaVA-CC3M-Pretrain-595K
+
+# Step 2: Download olmOCR-mix
+huggingface-cli download allenai/olmOCR-mix-1025 \
+    --repo-type dataset \
+    --local-dir ./data/olmOCR-mix-1025-raw
+
+# Step 3: Convert olmOCR to JSON
+cd data_prepare
+python convert_to_json.py \
+    --input-dir ../data/olmOCR-mix-1025-raw \
+    --output-dir ../data/olmOCR-mix-1025-json
+
+# Step 4: Convert to LLaVA format with PNG images
+python convert_to_llava.py \
+    --input-dir ../data/olmOCR-mix-1025-json \
+    --output-dir ../data/olmOCR-mix-1025-llava
 ```
 
-3. Split downloaded COYO data into multiple shards:
+## 📁 Final Directory Structure
+
+After completing all steps, your data directory should look like this:
+
+```
+data/
+├── LLaVA-CC3M-Pretrain-595K/          # Stage 1 data (ready to use)
+│   ├── images/
+│   └── chat.json
+│
+├── olmOCR-mix-1025-raw/               # Downloaded raw data
+│   └── [original files]
+│
+├── olmOCR-mix-1025-json/              # Intermediate format
+│   ├── annotations.json
+│   └── images/
+│
+└── olmOCR-mix-1025-llava/             # Stage 2 data (ready to use)
+    ├── images/                         # All images in PNG format
+    └── chat.json
+```
+
+## 🔍 Data Preparation Scripts
+
+All conversion scripts are located in the `data_prepare/` folder:
+
+```
+data_prepare/
+├── convert_to_json.py      # Step 1: Raw data → JSON format
+├── convert_to_llava.py     # Step 2: JSON → LLaVA format + PNG conversion
+└── README.md               # This file
+```
+
+### Script Options
+
+#### convert_to_json.py
 
 ```bash
-python coyo_splitter.py
+python convert_to_json.py \
+    --input-dir <path_to_raw_data> \
+    --output-dir <path_to_json_output> \
+    [--num-workers 4]                    # Parallel processing
 ```
 
-### LLaVA-1.5 Instruction Data
-
-We use this [file](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K/blob/main/llava_v1_5_mix665k.json) in our experiments. Please download this dataset from LLaVA authors.
+#### convert_to_llava.py
 
 ```bash
-huggingface-cli download liuhaotian/LLaVA-Instruct-150K llava_v1_5_mix665k.json --repo-type dataset
+python convert_to_llava.py \
+    --input-dir <path_to_json_data> \
+    --output-dir <path_to_llava_output> \
+    [--image-format png]                 # Output image format (default: png)
+    [--num-workers 4]                    # Parallel processing
+    [--max-size 2048]                    # Max image dimension
 ```
 
-### VFlan dataset
+## ⚠️ Important Notes
 
-#### TextFLAN
+1. **Disk Space**: Ensure you have sufficient disk space:
+   - LLaVA-CC3M: ~100GB
+   - olmOCR-mix (raw): ~50GB
+   - olmOCR-mix (converted): ~80GB (PNG format)
+   - Total: ~230GB recommended
 
-1. Download FLAN datasets:
+2. **Image Format**: The conversion process ensures all images are in PNG format for consistency during training.
+
+3. **Data Validation**: Both scripts include validation checks. If you encounter errors, check:
+   - Image file integrity
+   - JSON format validity
+   - Sufficient disk space
+
+4. **Processing Time**: 
+   - `convert_to_json.py`: ~10-30 minutes
+   - `convert_to_llava.py`: ~30-60 minutes (depends on image count and size)
+
+## 🐛 Troubleshooting
+
+### Issue: Download fails or is interrupted
 
 ```bash
-huggingface-cli download Open-Orca/FLAN --repo-type dataset --local-dir FLAN --local-dir-use-symlinks False
+# Resume download by re-running the command
+huggingface-cli download <dataset> --resume-download
 ```
 
-2. Preprocess FLAN dataset (sample 1M data from 378M samples):
+### Issue: Conversion script fails
 
 ```bash
-cd sft
-python preprocess_flan.py
+# Check Python dependencies
+pip install pillow tqdm pandas
+
+# Run with verbose logging
+python convert_to_json.py --input-dir ... --output-dir ... --verbose
 ```
 
-#### M3IT Dataset
-
-1. Download M3IT datasets:
+### Issue: Out of memory during conversion
 
 ```bash
-huggingface-cli download MMInstruction/M3IT --repo-type dataset --local-dir M3IT --local-dir-use-symlinks False
+# Reduce number of workers
+python convert_to_llava.py \
+    --input-dir ... \
+    --output-dir ... \
+    --num-workers 1
 ```
 
-2. Preprocess M3IT dataset:
+### Issue: Corrupted images
 
 ```bash
-python preprocess_m3it.py
+# The scripts will skip corrupted images and log them
+# Check the log file for details:
+cat conversion_errors.log
 ```
 
-3. (Optional) Split FLAN+M3IT into multiple chunks to reduce CPU memory pressure during training:
+## 📚 Next Steps
 
-```bash
-python split_vflan.py
-```
+After data preparation is complete, proceed to training:
 
-### LLaVA-Next mixture
+1. **Stage 1 - Alignment**: Use `LLaVA-CC3M-Pretrain-595K`
+   ```bash
+   bash scripts/NVILA-Lite/align_ocr.sh
+   ```
 
-You can follow this [page](https://github.com/OpenGVLab/InternVL/tree/main/internvl_chat#prepare-training-datasets) to prepare the data mixture that is proposed by LLaVA-Next.
+2. **Stage 2 - Pretraining**: Use `olmOCR-mix-1025-llava`
+   ```bash
+   bash scripts/NVILA-Lite/pretrain_ocr.sh
+   ```
 
-### Shot2story
-
-Please follow this [page](https://github.com/bytedance/Shot2Story/blob/master/DATA.md) to download the videos. The JSON file can be downloaded with
-
-```bash
-huggingface-cli download mit-han-lab/vila-dataset shot2story_shotonly.json
- --repo-type dataset --local-dir shot2story --local-dir-use-symlinks False
-```
-
-### Video_ChatGPT
-
-You can follow this [page](https://github.com/mbzuai-oryx/Video-ChatGPT/blob/main/README.md#video-instruction-dataset-open_file_folder) to prepare Video_ChatGPT dataset.
-
-### Youcook2
-
-Please follow this [page](http://youcook2.eecs.umich.edu/) to download the videos. The JSON file can be downloaded with
-
-```bash
-huggingface-cli download mit-han-lab/vila-dataset youcook_filtered_v3.json --repo-type dataset --local-dir youcook2 --local-dir-use-symlinks False
-```
-
-### Vatex
-
-Please follow this [page](https://eric-xw.github.io/vatex-website/download.html) to download the videos. The JSON file can be downloaded with
-
-```bash
-huggingface-cli download mit-han-lab/vila-dataset vatex_filtered_v3.json --repo-type dataset --local-dir vatex --local-dir-use-symlinks False
-```
-
-### ShareGPT_Video
-
-You can follow this [page](https://huggingface.co/datasets/ShareGPTVideo/train_video_and_instruction) to prepare ShareGPT_Video dataset.
-
-### WIT
-
-The original WIT data can be obtained [google-research-datasets/wit](https://github.com/google-research-datasets/wit/tree/main). * We subsample ~538K english data from the original WIT dataset and curate a llava conversation format JSON file.
-
-```bash
-huggingface-cli download mit-han-lab/vila-dataset wit_processed_538k.json --repo-type dataset --local-dir WIT --local-dir-use-symlinks False
-```
-
-### GSM8K-ScRel-SFT
-
-We add some math data [gsm8k-ScRel](https://github.com/OFA-Sys/gsm8k-ScRel/blob/main/data/train_use.jsonl) to our SFT stage.
-
-### Sherlock
-
-The image files of Sherlock can be obtained from [VisualGenome](https://visualgenome.org/api/v0/api_home.html) and [VCR](https://visualcommonsense.com/download/) separately. The llava conversation format JSON file can be downloaded with
-
-```bash
-huggingface-cli download mit-han-lab/vila-dataset sherlock_317k.json --repo-type dataset --local-dir sherlock --local-dir-use-symlinks False
-```
-
-### ScienceQA
-
-We use the train split of ScienceQA. The image data of the train split can be obtained from [ScienceQA](https://huggingface.co/datasets/derek-thomas/ScienceQA) or their [huggingface repo](https://huggingface.co/datasets/derek-thomas/ScienceQA). The llava conversation format JSON file can be downloaded with
-
-```bash
-huggingface-cli download mit-han-lab/vila-dataset scienceqa_train_12k.json --repo-type dataset --local-dir scienceqa --local-dir-use-symlinks False
-```
+See the main [README.md](../README.md) for detailed t

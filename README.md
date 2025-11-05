@@ -1,4 +1,4 @@
-# Deep-OCR Reproduction
+# Easy Deep-OCR 
 
 A reproduction of the **Deep-OCR** model based on the VILA codebase. Deep-OCR explores context optical compression through vision-text token compression, achieving state-of-the-art OCR performance with minimal vision tokens.
 
@@ -266,7 +266,7 @@ response = model.generate_content(prompt)
 
 ![OmniDocBench Performance](./assets/omni_doc_bench.png)
 
-### Olm Bench Results
+### olmOCR-Bench Results
 
 ![olmOCR-Bench Bench Performance](./assets/olm_bench.png)
 
