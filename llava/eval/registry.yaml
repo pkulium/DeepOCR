@@ -1,0 +1,8 @@
+---
+lmms-ocrbench:
+    tags:
+        - core
+        - local
+        - regression
+    metrics:
+        accuracy: results/ocrbench/ocrbench_accuracy,none

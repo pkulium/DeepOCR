@@ -1,0 +1,16 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Log directory
+log/
+
+# Build artifacts
+*.egg-info/
+
+# Output directories (if needed)
+out
+out1
+out2
+runs/
