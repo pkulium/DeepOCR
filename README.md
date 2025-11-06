@@ -24,7 +24,7 @@ A reproduction of the **Deepseek-OCR** model based on the VILA codebase. DeepOCR
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   DeepOCR                          │
+│                   DeepOCR                           │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
 │  ┌─────────────────────────────────────────────┐    │
@@ -250,7 +250,7 @@ vila-infer \
 import llava
 
 # Load model
-model = llava.load("./easy_deepocr")
+model = llava.load("./easy_deepocr_sam_clip")
 
 prompt = [
     Image("document.pdf"), 
