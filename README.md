@@ -1,10 +1,17 @@
-# Easy Deep-OCR 
+# DeepOCR 
 
-A reproduction of the **Deep-OCR** model based on the VILA codebase. Deep-OCR explores context optical compression through vision-text token compression, achieving state-of-the-art OCR performance with minimal vision tokens.
+A reproduction of the **Deepseek-OCR** model based on the VILA codebase. DeepOCR explores context optical compression through vision-text token compression, achieving competitive OCR performance with minimal vision tokens.
+
+## ✨ Highlights
+
+- **15× Token Efficiency**: Achieves competitive OCR performance using ~250 vision tokens vs 3949+ tokens in baseline VLMs
+- **Open Source Implementation**: Complete reproduction of DeepSeek-OCR's innovative optical compression architecture using the VILA framework
+- **Novel DeepEncoder**: Combines SAM (window attention) + CLIP (global attention) with 16× convolutional compression for efficient high-resolution processing (1024×1024+)
+- **Production Ready**: Includes complete training pipeline, evaluation scripts, and pre-trained checkpoints for immediate use
 
 ## 📄 Paper Overview
 
-**Deep-OCR: Contexts Optical Compression**  
+**Deepseek-OCR: Contexts Optical Compression**  
 [arXiv Paper](https://www.arxiv.org/abs/2510.18234) 
 
 ### Key Features
@@ -17,7 +24,7 @@ A reproduction of the **Deep-OCR** model based on the VILA codebase. Deep-OCR ex
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   Deep-OCR                          │
+│                   DeepOCR                          │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
 │  ┌─────────────────────────────────────────────┐    │
@@ -47,12 +54,12 @@ A reproduction of the **Deep-OCR** model based on the VILA codebase. Deep-OCR ex
 
 ```bash
 # Clone the repository
-git clone https://github.com/pkulium/easy_deepocr
-cd easy_deepocr
+git clone https://github.com/pkulium/DeepOCR
+cd DeepOCR
 
 # Set up environment
-./environment_setup.sh easy_deeporc
-conda activate easy_deeporc
+./environment_setup.sh deeporc
+conda activate deeporc
 
 # Install additional dependencies for OCR
 pip install safetensors einops easydict mupdf
@@ -299,8 +306,8 @@ response = model.generate_content(prompt)
 
 This reproduction is based on the VILA codebase and has some adaptations:
 
-1. **LLM Decoder**: Uses Qwen2-VL-7B instead of Deep-3B-MoE
-2. **Training Framework**: VILA's training pipeline instead of Deep's custom framework
+1. **LLM Decoder**: Uses Qwen2-VL-7B instead of Deepseek-3B-MoE
+2. **Training Framework**: VILA's training pipeline instead of Deepseek's custom framework
 3. **Data Loading**: Adapted to VILA's data format and preprocessing
 4. **Multi-resolution**: Simplified implementation with preset modes
 
@@ -315,10 +322,10 @@ This reproduction is based on the VILA codebase and has some adaptations:
 ## 📚 Citation
 If you find our work helpful, please consider citing it:
 ```bibtex
- @misc{easy_deepocr,
-  title        = {Easy-DeepOCR},
+ @misc{DeepOCR,
+  title        = {DeepOCR},
   year         = {2025},
-  howpublished = {\url{https://github.com/pkulium/easy_deepocr}},
+  howpublished = {\url{https://github.com/pkulium/DeepOCR}},
   note         = {Accessed: 2025-11-04}
 }
 ```
@@ -331,12 +338,12 @@ If you find our work helpful, please consider citing it:
 
 ## 🙏 Acknowledgments
 
-- Original Deep-OCR paper and team
+- Original Deepseek-OCR paper and team
 - VILA codebase and NVIDIA team
 - SAM (Segment Anything Model) from Meta
 - CLIP from OpenAI
-- Qwen2-VL from Alibaba
+- Qwen2 from Qwen team
 
 ---
 
-**Note**: This is a research reproduction. For production deployment, consider the official Deep-OCR implementation.
+**Note**: This is a research reproduction. For production deployment, consider the official Deepseek-OCR implementation.
