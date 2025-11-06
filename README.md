@@ -4,7 +4,7 @@ A reproduction of the **Deepseek-OCR** model based on the VILA codebase. DeepOCR
 
 ## ✨ Highlights
 
-- **15× Token Efficiency**: Achieves competitive OCR performance using ~250 vision tokens vs 3949+ tokens in baseline VLMs
+- **Token Efficiency**: Achieves competitive OCR performance using ~250 vision tokens 
 - **Open Source Implementation**: Complete reproduction of DeepSeek-OCR's innovative optical compression architecture using the VILA framework
 - **Novel DeepEncoder**: Combines SAM (window attention) + CLIP (global attention) with 16× convolutional compression for efficient high-resolution processing (1024×1024+)
 - **Production Ready**: Includes complete training pipeline, evaluation scripts, and pre-trained checkpoints for immediate use
