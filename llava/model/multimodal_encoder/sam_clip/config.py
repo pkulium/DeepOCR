@@ -6,7 +6,7 @@
 # Gundam: base_size = 1024, image_size = 640, crop_mode = True
 
 BASE_SIZE = 1024
-IMAGE_SIZE = 1024
+IMAGE_SIZE = 640
 CROP_MODE = True
 MIN_CROPS= 2
 MAX_CROPS= 6 # max:9; If your GPU memory is small, it is recommended to set it to 6.

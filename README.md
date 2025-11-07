@@ -2,7 +2,7 @@
 
 A reproduction of the **Deepseek-OCR** model based on the VILA codebase. DeepOCR explores context optical compression through vision-text token compression, achieving competitive OCR performance with minimal vision tokens.
 
-[📄 Blog](link) | [🤗 Model](link) | [🌐 Website](https://pkulium.github.io/DeepOCR_website/) | [🚀 Demo](https://huggingface.co/pkulium/easy_deepocr)
+[🌐 Website](https://pkulium.github.io/DeepOCR_website/) | [🤗 Model](https://huggingface.co/pkulium/easy_deepocr) 
 
 ## ✨ Highlights
 
