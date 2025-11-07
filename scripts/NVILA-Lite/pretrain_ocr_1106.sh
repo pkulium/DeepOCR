@@ -2,22 +2,18 @@
 
 #!/bin/bash
 # ulimit -u 8192
-DEFAULT_RUN_NAME="ocr-qwen2-vl-8b-pretrain-sam_clip"
-DEFAULT_GLOBAL_TRAIN_BATCH_SIZE=64
+DEFAULT_RUN_NAME="ocr-qwen2-vl-8b-pretrain-sam_clip_IMAGE_SIZE_1024"
+DEFAULT_GLOBAL_TRAIN_BATCH_SIZE=32
 DEFAULT_GRADIENT_ACCUMULATION_STEPS=1
 
 STAGE_PATH=${1:-"runs/train/ocr-qwen2-vl-8b-align/model"}
 DATA_MIXTURE=${2:-"olmOCR-mix-pretrain"}
-OUTPUT_DIR=${3:-"runs/train/ocr-qwen2-vl-8b-pretrain-sam_clip"}
+OUTPUT_DIR=${3:-"runs/train/ocr-qwen2-vl-8b-pretrain-sam_clip_IMAGE_SIZE_1024"}
 
 source scripts/setups/train.sh
-export WANDB_MODE=offline
+# export WANDB_MODE=offline
 export WANDB_SERVICE_WAIT=1200
 export WANDB_INIT_TIMEOUT=1200
-
-# GPUS_PER_NODE=2
-# CUDA_VISIBLE_DEVICES=2,3
-# MASTER_PORT=25003
 
 torchrun \
     --nnodes=$NNODES --nproc_per_node=$GPUS_PER_NODE --node_rank=$NODE_RANK \
