@@ -168,12 +168,12 @@ class VisionTower(nn.Module):
                         for key in image:
                             image[key] = image[key].to(device=self.device)
                         # print(">>>using sam_clip_vision_tower")
-                        print(">>>call_begin sam_clip_vision_tower")                            
+                        # print(">>>call_begin sam_clip_vision_tower")                            
                         image_forward_out = self.vision_tower(
                             image,
                             output_hidden_states=True,
                         )
-                        print(">>>call_return sam_clip_vision_tower")
+                        # print(">>>call_return sam_clip_vision_tower")
                         image_feature = self.feature_select(image_forward_out)
                     else:
                         image_forward_out = self.vision_tower(

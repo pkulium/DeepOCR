@@ -1,26 +1,21 @@
 ---
-llava_15_mix:
-    _target_: llava.data.LLaVADataset
-    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/LLaVA-CC3M-Pretrain-595K-data/chat.json
-    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/LLaVA-CC3M-Pretrain-595K-data/images
-llava_15_mix_lite:
-    _target_: llava.data.LLaVADataset
-    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/LLaVA-CC3M-Pretrain-595K-data/chat_lite.json
-    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/LLaVA-CC3M-Pretrain-595K-data/images
-nvila-pretrain:
-    _target_: llava.data.LLaVADataset
-    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/ShareGPT4V/data/llava/blip_laion_cc_sbu_558k.json
-    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/ShareGPT4V/data/llava/llava_pretrain/images
-nvila-pretrain_lite:
-    _target_: llava.data.LLaVADataset
-    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/ShareGPT4V/data/llava/chat_lite.json
-    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/ShareGPT4V/data/llava/llava_pretrain/images
 olmOCR-mix-pretrain:
     _target_: llava.data.LLaVADataset
     data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/olmOCR-mix-1025/transformed_data_png.json
     media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/olmOCR-mix-1025/png_tarballs
-olmOCR-mix-pretrain_lite:
+vary_pdf_cn_30w:
     _target_: llava.data.LLaVADataset
-    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/olmOCR-mix-1025/chat_lite.json
-    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/olmOCR-mix-1025/png_tarballs
-
+    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/vary/pdf_cn_30w_llava.json
+    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/vary/pdf_cn_30w/data/pdf_data/pdf_cn_30w
+vary_pdf_en_30w:
+    _target_: llava.data.LLaVADataset
+    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/vary/pdf_en_30w_llava.json
+    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/vary/pdf_en_30w/data/pdf_data/pdf_en_30w
+synthdog-en:
+    _target_: llava.data.LLaVADataset
+    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/synthdog/synthdog-en/data_llava/dataset.json
+    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/synthdog/synthdog-en/data_llava/images
+synthdog-zh:
+    _target_: llava.data.LLaVADataset
+    data_path: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/synthdog/synthdog-zh/data_llava/dataset.json
+    media_dir: /lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/synthdog/synthdog-zh/data_llava/images

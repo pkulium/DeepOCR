@@ -169,9 +169,9 @@ class SAMCLIP(PreTrainedModel):
                 has_patches = has_patches_tensor.item() != 0
 
                 if has_patches:
-                    print(">>>with patches")
-                    print(">>>patches.shape", patches.shape)
-                    print(">>>patches.device", patches.device)
+                    # print(">>>with patches")
+                    # print(">>>patches.shape", patches.shape)
+                    # print(">>>patches.device", patches.device)
                     # P, C, H, W = patches.shape
                     # crop_flag = 1
                     # print(">>>call_begin_sam1")

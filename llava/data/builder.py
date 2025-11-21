@@ -98,7 +98,7 @@ def build_dataset(
                 name, subset_choice = name.split("@")
                 slice_subset = True
                 slice_folder = os.environ.get(
-                    "VILA_SLICE_FOLDER", "/home/ligengz/workspace/dataset-curation/filter_index"
+                    "VILA_SLICE_FOLDER", "/lustre/hdd/LAS/wzhang-lab/mingl/code/vllm/vlm_ocr/workspace/data/tmp/lite"
                 )
             except ValueError as e:
                 logger.warning(f"failed on {name}")
